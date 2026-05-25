@@ -53,10 +53,11 @@ Turn any **public iCloud Shared Album** into a Home Assistant camera entity that
 
 1. Go to **Settings → Devices & Services → Add Integration**.
 2. Search for **iCloud Shared Album**.
-3. Paste your public iCloud Shared Album URL:
+3. Paste **your own** public iCloud Shared Album URL. It will look like this:
    ```
-   https://www.icloud.com/sharedalbum/#B0iG4TcsmGeQtHw
+   https://www.icloud.com/sharedalbum/#YourAlbumTokenHere
    ```
+   > ⚠️ **You must use your own album link.** See the section below for how to find it.
 4. Set your preferred options and click **Submit**.
 
 ### How to get your iCloud Shared Album URL

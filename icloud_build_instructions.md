@@ -23,13 +23,13 @@ The following has already been confirmed working.
 
 Shared Album Token
 
-Example album:
+Example album (use your own public shared album URL):
 
-https://www.icloud.com/sharedalbum/#B0iG4TcsmGeQtHw
+https://www.icloud.com/sharedalbum/#YourAlbumTokenHere
 
-Album token:
+Album token (the part after the # symbol in your URL):
 
-B0iG4TcsmGeQtHw
+YourAlbumTokenHere
 
 iCloud Shared Album API
 
@@ -145,13 +145,13 @@ Refresh interval	integer
 Randomization mode	optional
 Image quality	optional
 
-Example:
+Example (user pastes their own public album URL):
 
-https://www.icloud.com/sharedalbum/#B0iG4TcsmGeQtHw
+https://www.icloud.com/sharedalbum/#YourAlbumTokenHere
 
 The integration should automatically extract:
 
-B0iG4TcsmGeQtHw
+YourAlbumTokenHere
 
 ⸻
 
@@ -494,9 +494,11 @@ Recommended Development Flow
 
 Example Public Album
 
-Use for testing:
+Use your own public iCloud Shared Album URL for testing. The format looks like:
 
-https://www.icloud.com/sharedalbum/#B0iG4TcsmGeQtHw
+https://www.icloud.com/sharedalbum/#YourAlbumTokenHere
+
+(Enable "Public Website" on the album in the Photos app to get this link.)
 
 ⸻
 
