@@ -150,6 +150,9 @@ class ICloudSharedAlbumConfigFlow(
             step_id="user",
             data_schema=_user_schema(),
             errors=errors,
+            description_placeholders={
+                "readme_url": "https://github.com/Stephonomon/icloud_slideshow_hacs#readme"
+            },
         )
 
     @staticmethod

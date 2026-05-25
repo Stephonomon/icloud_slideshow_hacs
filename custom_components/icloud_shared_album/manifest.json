@@ -8,6 +8,5 @@
   "config_flow": true,
   "iot_class": "cloud_polling",
   "requirements": [],
-  "dependencies": [],
-  "homeassistant": "2025.1.0"
+  "dependencies": []
 }
