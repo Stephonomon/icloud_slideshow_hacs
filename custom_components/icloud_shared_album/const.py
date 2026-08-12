@@ -3,6 +3,7 @@
 DOMAIN = "icloud_shared_album"
 
 # Configuration keys
+CONF_NAME = "name"
 CONF_ALBUM_URL = "album_url"
 CONF_SCAN_INTERVAL = "scan_interval"
 CONF_SLIDESHOW_MODE = "slideshow_mode"

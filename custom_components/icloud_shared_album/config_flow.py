@@ -24,6 +24,7 @@ from .api import ICloudSharedAlbumAPI, extract_token
 from .const import (
     CONF_ALBUM_URL,
     CONF_IMAGE_QUALITY,
+    CONF_NAME,
     CONF_SCAN_INTERVAL,
     CONF_SLIDESHOW_MODE,
     DEFAULT_SCAN_INTERVAL,
@@ -61,6 +62,9 @@ def _user_schema(
     fields: dict[vol.Marker, Any] = {}
 
     if include_url:
+        fields[vol.Optional(CONF_NAME, default=defaults.get(CONF_NAME, ""))] = (
+            TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT))
+        )
         fields[vol.Required(CONF_ALBUM_URL)] = TextSelector(
             TextSelectorConfig(type=TextSelectorType.URL)
         )
@@ -136,8 +140,10 @@ class ICloudSharedAlbumConfigFlow(
                         errors[CONF_ALBUM_URL] = "no_photos"
                     else:
                         scan_interval = int(user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
+                        custom_name = user_input.get(CONF_NAME, "").strip()
+                        title = custom_name or f"iCloud Album ({token[:8]}…)"
                         return self.async_create_entry(
-                            title=f"iCloud Album ({token[:8]}…)",
+                            title=title,
                             data={
                                 "token": token,
                                 CONF_SCAN_INTERVAL: scan_interval,

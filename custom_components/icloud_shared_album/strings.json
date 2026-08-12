@@ -5,12 +5,14 @@
         "title": "Connect an iCloud Shared Album",
         "description": "Paste the public link from your iCloud Shared Album. No Apple account is required. See the [README]({readme_url}) for instructions on finding the URL.",
         "data": {
+          "name": "Name (optional)",
           "album_url": "iCloud Shared Album URL",
           "scan_interval": "Photo rotation interval (seconds)",
           "slideshow_mode": "Slideshow mode",
           "image_quality": "Image quality"
         },
         "data_description": {
+          "name": "A friendly name for this album, e.g. \"Family Photos\" or \"Living Room Slideshow\". Leave blank to auto-generate one.",
           "album_url": "The full link from iCloud Photos — starts with icloud.com/sharedalbum and ends with the album token after the # symbol.",
           "scan_interval": "How often (in seconds) the displayed photo rotates. Minimum 10 s.",
           "slideshow_mode": "Whether photos are shown in a random order or sequentially.",
