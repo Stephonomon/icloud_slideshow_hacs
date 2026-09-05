@@ -2,21 +2,55 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DOMAIN
+from .const import CARD_FILENAME, CARD_URL, CARD_VERSION, DOMAIN
 from .coordinator import ICloudAlbumCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["camera"]
 
+FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
+
+
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Serve the bundled Lovelace card and load it on every dashboard."""
+    if hass.data.get(FRONTEND_REGISTERED):
+        return
+    hass.data[FRONTEND_REGISTERED] = True
+
+    card_path = Path(__file__).parent / "frontend" / CARD_FILENAME
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(
+                url_path=CARD_URL,
+                path=str(card_path),
+                cache_headers=False,
+            )
+        ]
+    )
+    add_extra_js_url(hass, f"{CARD_URL}?v={CARD_VERSION}")
+    _LOGGER.debug("Registered Lovelace card at %s", CARD_URL)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up iCloud Shared Album from a config entry."""
+    try:
+        await _async_register_frontend(hass)
+    except Exception:  # noqa: BLE001 — the card is optional, the camera is not
+        _LOGGER.warning(
+            "Could not register the iCloud Slideshow Lovelace card; "
+            "the camera entity will still work",
+            exc_info=True,
+        )
+
     coordinator = ICloudAlbumCoordinator(hass, entry)
 
     try:

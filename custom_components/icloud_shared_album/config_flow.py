@@ -29,6 +29,8 @@ from .const import (
     CONF_SLIDESHOW_MODE,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    MAX_SCAN_INTERVAL,
+    MIN_SCAN_INTERVAL,
     MODE_RANDOM,
     MODE_SEQUENTIAL,
     QUALITY_MEDIUM,
@@ -72,8 +74,8 @@ def _user_schema(
     fields[vol.Optional(CONF_SCAN_INTERVAL, default=defaults.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))] = (
         NumberSelector(
             NumberSelectorConfig(
-                min=10,
-                max=86400,
+                min=MIN_SCAN_INTERVAL,
+                max=MAX_SCAN_INTERVAL,
                 step=1,
                 unit_of_measurement="seconds",
                 mode=NumberSelectorMode.BOX,

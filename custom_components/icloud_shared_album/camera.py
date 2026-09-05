@@ -1,6 +1,8 @@
 """Camera platform for iCloud Shared Album."""
 from __future__ import annotations
 
+from datetime import timedelta
+
 from homeassistant.components.camera import Camera
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -8,7 +10,14 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import (
+    ATTR_CURRENT_GUID,
+    ATTR_LAST_CHANGE,
+    ATTR_NEXT_CHANGE,
+    ATTR_PHOTO_COUNT,
+    ATTR_ROTATION_INTERVAL,
+    DOMAIN,
+)
 from .coordinator import ICloudAlbumCoordinator
 
 
@@ -60,15 +69,48 @@ class ICloudAlbumCamera(CoordinatorEntity[ICloudAlbumCoordinator], Camera):
         """Return the current cached image bytes."""
         return self.coordinator.current_image
 
+    @property
+    def frame_interval(self) -> float:
+        """Poll interval for the MJPEG still stream.
+
+        The stream endpoint is what the more-info dialog renders, so keep it
+        short enough that a rotation shows up promptly there too.
+        """
+        return 1.0
+
+    @property
+    def entity_picture(self) -> str | None:
+        """Return the proxy URL with a per-rotation cache buster.
+
+        Without this the URL is identical for every photo, so any consumer that
+        renders it as a plain <img> (a fullscreen/expanded view, for example)
+        keeps showing the first frame the browser cached.
+        """
+        picture = super().entity_picture
+        if not picture:
+            return picture
+        separator = "&" if "?" in picture else "?"
+        return f"{picture}{separator}v={self.coordinator.image_revision}"
+
     # ------------------------------------------------------------------
     # Extra state attributes
     # ------------------------------------------------------------------
 
     @property
     def extra_state_attributes(self) -> dict:
-        """Expose photo count and current GUID for diagnostics."""
+        """Expose photo count, current GUID, and rotation timing."""
         data = self.coordinator.data or {}
+        interval = self.coordinator.scan_interval
+        last_change = self.coordinator.last_change
+
         return {
-            "photo_count": data.get("photo_count"),
-            "current_guid": data.get("current_guid"),
+            ATTR_PHOTO_COUNT: data.get(ATTR_PHOTO_COUNT),
+            ATTR_CURRENT_GUID: data.get(ATTR_CURRENT_GUID),
+            ATTR_ROTATION_INTERVAL: interval,
+            ATTR_LAST_CHANGE: last_change.isoformat() if last_change else None,
+            ATTR_NEXT_CHANGE: (
+                (last_change + timedelta(seconds=interval)).isoformat()
+                if last_change
+                else None
+            ),
         }

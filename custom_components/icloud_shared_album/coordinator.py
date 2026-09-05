@@ -4,16 +4,22 @@ from __future__ import annotations
 import logging
 import random
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import ICloudSharedAlbumAPI
 from .const import (
+    ATTR_CURRENT_GUID,
+    ATTR_LAST_CHANGE,
+    ATTR_NEXT_CHANGE,
+    ATTR_PHOTO_COUNT,
+    ATTR_ROTATION_INTERVAL,
     CONF_IMAGE_QUALITY,
     CONF_SCAN_INTERVAL,
     CONF_SLIDESHOW_MODE,
@@ -57,6 +63,9 @@ class ICloudAlbumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         # Current frame
         self.current_image: bytes | None = None
+        # Bumped on every successful rotation so the entity picture URL changes
+        self.image_revision: int = 0
+        self.last_change: datetime | None = None
 
     # ------------------------------------------------------------------
     # DataUpdateCoordinator interface
@@ -83,10 +92,17 @@ class ICloudAlbumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             self.current_image = image_bytes
             self._last_guid = photo.get("photoGuid")
+            self.image_revision += 1
+            self.last_change = dt_util.utcnow()
 
             return {
-                "photo_count": len(self._photos),
-                "current_guid": self._last_guid,
+                ATTR_PHOTO_COUNT: len(self._photos),
+                ATTR_CURRENT_GUID: self._last_guid,
+                ATTR_ROTATION_INTERVAL: self.scan_interval,
+                ATTR_LAST_CHANGE: self.last_change.isoformat(),
+                ATTR_NEXT_CHANGE: (
+                    self.last_change + timedelta(seconds=self.scan_interval)
+                ).isoformat(),
             }
 
         except UpdateFailed:
@@ -102,10 +118,14 @@ class ICloudAlbumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Return the current option value, preferring options over data."""
         return self._entry.options.get(key, self._entry.data.get(key, default))
 
+    @property
+    def scan_interval(self) -> int:
+        """Seconds between photo rotations."""
+        return int(self._get_option(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
+
     def update_scan_interval(self) -> None:
         """Update the polling interval from current options (call after reload)."""
-        seconds = self._get_option(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-        self.update_interval = timedelta(seconds=seconds)
+        self.update_interval = timedelta(seconds=self.scan_interval)
 
     # ------------------------------------------------------------------
     # Internal helpers

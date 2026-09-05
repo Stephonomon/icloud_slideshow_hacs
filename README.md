@@ -11,9 +11,10 @@ Turn any **public iCloud Shared Album** into a Home Assistant camera entity that
 ## ✨ Features
 
 - 📷 Exposes a **camera entity** that serves album photos directly to Lovelace
+- 🎞️ Bundled **Lovelace card** with a crossfade, a rotation **progress bar**, and a fullscreen view that keeps rotating
 - 🔀 **Random** or **sequential** photo rotation
 - ⚙️ **Fully UI-configured** via the Home Assistant integrations panel
-- 🔄 Adjustable rotation interval (10 s → 24 h)
+- 🔄 Adjustable rotation interval (5 s → 24 h, default 15 s)
 - 🖼️ Selectable image quality (Original / Medium / Small)
 - 🚫 Automatically skips videos — images only
 - 💾 Caches album metadata to minimize API calls
@@ -74,7 +75,48 @@ Turn any **public iCloud Shared Album** into a Home Assistant camera entity that
 
 ## 📐 Lovelace Dashboard
 
-Once configured, add a camera card to any dashboard:
+### Slideshow card (recommended)
+
+The integration ships its own card and registers it automatically — there is
+nothing to add under **Settings → Dashboards → Resources**. Add it from the
+card picker (**Add Card → iCloud Slideshow**) or paste:
+
+```yaml
+type: custom:icloud-slideshow-card
+entity: camera.icloud_shared_album
+```
+
+It crossfades between photos, draws a thin progress bar showing how long is
+left before the next one, and tapping it goes fullscreen — where the photos
+keep rotating.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `entity` | *(required)* | The camera entity from this integration. |
+| `fit` | `cover` | `cover` fills the card (crops); `contain` letterboxes. Fullscreen always uses `contain`. |
+| `aspect_ratio` | `16:9` | Card shape, e.g. `4:3`, `1:1`, `21:9`. |
+| `show_progress` | `true` | Show the rotation progress bar. |
+| `progress_position` | `bottom` | `bottom` or `top`. |
+| `progress_height` | `4` | Bar thickness in pixels. |
+| `progress_color` | theme accent | Any CSS color. |
+| `transition` | `700` | Crossfade duration in milliseconds. Set `0` for a hard cut. |
+| `tap_action` | `fullscreen` | `fullscreen`, `more-info`, or `none`. |
+
+A fuller example:
+
+```yaml
+type: custom:icloud-slideshow-card
+entity: camera.icloud_shared_album
+aspect_ratio: "4:3"
+fit: contain
+progress_height: 3
+progress_color: rgba(255, 255, 255, 0.85)
+transition: 1200
+```
+
+### Built-in cards
+
+The standard cards still work if you prefer them:
 
 ```yaml
 type: picture-entity
@@ -83,9 +125,18 @@ show_name: false
 show_state: false
 ```
 
-Or use the visual editor: **Add Card → Picture Entity → choose your camera**.
+### Entity attributes
 
-For a full-bleed slideshow look, combine with a **Vertical Stack** or use the **Picture Glance** card.
+The camera exposes the rotation schedule, so you can drive your own cards or
+automations from it:
+
+| Attribute | Description |
+|-----------|-------------|
+| `photo_count` | Number of images in the album. |
+| `current_guid` | GUID of the photo on screen. |
+| `rotation_interval` | Configured interval, in seconds. |
+| `last_change` | ISO timestamp of the current photo's arrival. |
+| `next_change` | ISO timestamp of the next rotation. |
 
 ---
 
@@ -135,6 +186,7 @@ Apple's CDN URLs expire (~24 hours), so fresh URLs are fetched on every rotation
 | Camera shows a broken image | The album may be empty or Apple's API returned an error. Check logs. |
 | Photos stop rotating | Verify your internet connection. Check HA logs for `icloud_shared_album`. |
 | Only seeing one photo | There may be only one image in the album, or the album has only videos. |
+| Card doesn't appear in the picker | Hard-refresh the browser (Ctrl/Cmd + Shift + R) so the newly registered card script loads. |
 | Want to force a refresh | Reload the integration: **Settings → Devices & Services → ⋮ → Reload**. |
 
 Enable debug logging for detailed output:
@@ -156,6 +208,7 @@ logger:
 - [ ] Service call to manually advance to the next photo
 - [ ] Favorites-only mode
 - [ ] Prefetch next image for seamless rotation
+- [ ] Tap-to-pause and manual next/previous on the slideshow card
 
 ---
 

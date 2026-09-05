@@ -19,8 +19,22 @@ QUALITY_MEDIUM = "medium"
 QUALITY_SMALL = "small"
 
 # Defaults
-DEFAULT_SCAN_INTERVAL = 30          # seconds between photo rotations
+DEFAULT_SCAN_INTERVAL = 15          # seconds between photo rotations
+MIN_SCAN_INTERVAL = 5               # fastest rotation the config flow allows
+MAX_SCAN_INTERVAL = 86400           # slowest rotation the config flow allows
 DEFAULT_ALBUM_REFRESH_HOURS = 1     # hours between full album metadata refreshes
+
+# Extra state attributes
+ATTR_PHOTO_COUNT = "photo_count"
+ATTR_CURRENT_GUID = "current_guid"
+ATTR_ROTATION_INTERVAL = "rotation_interval"
+ATTR_LAST_CHANGE = "last_change"
+ATTR_NEXT_CHANGE = "next_change"
+
+# Bundled Lovelace card
+CARD_VERSION = "1.2.0"
+CARD_FILENAME = "icloud-slideshow-card.js"
+CARD_URL = f"/{DOMAIN}/{CARD_FILENAME}"
 
 # iCloud API
 ICLOUD_BASE_HOST = "p101-sharedstreams.icloud.com"

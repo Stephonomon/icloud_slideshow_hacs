@@ -14,7 +14,7 @@
         "data_description": {
           "name": "A friendly name for this album, e.g. \"Family Photos\" or \"Living Room Slideshow\". Leave blank to auto-generate one.",
           "album_url": "The full link from iCloud Photos — starts with icloud.com/sharedalbum and ends with the album token after the # symbol.",
-          "scan_interval": "How often (in seconds) the displayed photo rotates. Minimum 10 s.",
+          "scan_interval": "How often (in seconds) the displayed photo rotates. Minimum 5 s, default 15 s.",
           "slideshow_mode": "Whether photos are shown in a random order or sequentially.",
           "image_quality": "Larger sizes look better but take longer to download."
         }
@@ -39,7 +39,7 @@
           "image_quality": "Image quality"
         },
         "data_description": {
-          "scan_interval": "How often (in seconds) the displayed photo rotates. Minimum 10 s.",
+          "scan_interval": "How often (in seconds) the displayed photo rotates. Minimum 5 s, default 15 s.",
           "slideshow_mode": "Whether photos are shown in a random order or sequentially.",
           "image_quality": "Larger sizes look better but take longer to download."
         }
