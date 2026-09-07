@@ -186,7 +186,8 @@ Apple's CDN URLs expire (~24 hours), so fresh URLs are fetched on every rotation
 | Camera shows a broken image | The album may be empty or Apple's API returned an error. Check logs. |
 | Photos stop rotating | Verify your internet connection. Check HA logs for `icloud_shared_album`. |
 | Only seeing one photo | There may be only one image in the album, or the album has only videos. |
-| Card doesn't appear in the picker | Hard-refresh the browser (Ctrl/Cmd + Shift + R) so the newly registered card script loads. |
+| Card doesn't appear in the picker | Hard-refresh the browser (Ctrl/Cmd + Shift + R) so the card script loads. |
+| Card still missing after a refresh | **Restart** Home Assistant — the card's static path can only be registered at startup, so reloading the integration is not enough. |
 | Want to force a refresh | Reload the integration: **Settings → Devices & Services → ⋮ → Reload**. |
 
 Enable debug logging for detailed output:

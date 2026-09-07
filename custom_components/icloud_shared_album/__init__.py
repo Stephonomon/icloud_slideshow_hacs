@@ -24,7 +24,6 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
     """Serve the bundled Lovelace card and load it on every dashboard."""
     if hass.data.get(FRONTEND_REGISTERED):
         return
-    hass.data[FRONTEND_REGISTERED] = True
 
     card_path = Path(__file__).parent / "frontend" / CARD_FILENAME
     await hass.http.async_register_static_paths(
@@ -37,6 +36,7 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
         ]
     )
     add_extra_js_url(hass, f"{CARD_URL}?v={CARD_VERSION}")
+    hass.data[FRONTEND_REGISTERED] = True
     _LOGGER.debug("Registered Lovelace card at %s", CARD_URL)
 
 
@@ -46,8 +46,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await _async_register_frontend(hass)
     except Exception:  # noqa: BLE001 — the card is optional, the camera is not
         _LOGGER.warning(
-            "Could not register the iCloud Slideshow Lovelace card; "
-            "the camera entity will still work",
+            "Could not register the iCloud Slideshow Lovelace card; the camera "
+            "entity will still work. Static paths cannot be added once Home "
+            "Assistant is running, so restart HA rather than reloading this "
+            "integration",
             exc_info=True,
         )
 
