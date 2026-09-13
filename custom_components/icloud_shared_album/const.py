@@ -32,7 +32,7 @@ ATTR_LAST_CHANGE = "last_change"
 ATTR_NEXT_CHANGE = "next_change"
 
 # Bundled Lovelace card
-CARD_VERSION = "1.2.0"
+CARD_VERSION = "1.2.1"
 CARD_FILENAME = "icloud-slideshow-card.js"
 CARD_URL = f"/{DOMAIN}/{CARD_FILENAME}"
 

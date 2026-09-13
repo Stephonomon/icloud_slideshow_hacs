@@ -9,6 +9,8 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.typing import ConfigType
 
 from .const import CARD_FILENAME, CARD_URL, CARD_VERSION, DOMAIN
 from .coordinator import ICloudAlbumCoordinator
@@ -16,6 +18,8 @@ from .coordinator import ICloudAlbumCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["camera"]
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
 
@@ -40,8 +44,8 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
     _LOGGER.debug("Registered Lovelace card at %s", CARD_URL)
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up iCloud Shared Album from a config entry."""
+async def _async_try_register_frontend(hass: HomeAssistant) -> None:
+    """Register the card, logging rather than raising if it fails."""
     try:
         await _async_register_frontend(hass)
     except Exception:  # noqa: BLE001 — the card is optional, the camera is not
@@ -52,6 +56,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "integration",
             exc_info=True,
         )
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Register the Lovelace card as early as possible.
+
+    This runs when the component is loaded, before any config entry is set
+    up. Registering here (rather than in async_setup_entry) narrows the
+    window after a restart in which a kiosk browser can reconnect, fetch the
+    frontend index without our script URL, and cache that card-less shell.
+    """
+    await _async_try_register_frontend(hass)
+    return True
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up iCloud Shared Album from a config entry."""
+    # Belt and braces: async_setup normally handles this, but it is a no-op
+    # if already registered and covers entries added while HA is running.
+    await _async_try_register_frontend(hass)
 
     coordinator = ICloudAlbumCoordinator(hass, entry)
 
