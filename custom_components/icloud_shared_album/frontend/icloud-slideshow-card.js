@@ -8,7 +8,7 @@
  * automatically — no Lovelace resource entry needed.
  */
 
-const CARD_VERSION = "1.2.0";
+const CARD_VERSION = "1.2.2";
 const CARD_TAG = "icloud-slideshow-card";
 
 const DEFAULTS = {
@@ -324,7 +324,8 @@ class ICloudSlideshowCard extends HTMLElement {
   }
 }
 
-if (!customElements.get(CARD_TAG)) {
+const defineCard = () => {
+  if (customElements.get(CARD_TAG)) return;
   customElements.define(CARD_TAG, ICloudSlideshowCard);
 
   window.customCards = window.customCards || [];
@@ -341,4 +342,17 @@ if (!customElements.get(CARD_TAG)) {
     "color:#fff;background:#3a7bd5;font-weight:700",
     "color:#3a7bd5;background:#fff;font-weight:700"
   );
+};
+
+// Home Assistant's frontend (2026.9+) replaces window.customElements with a
+// scoped-registry wrapper while its app bundle boots. This module is loaded
+// via extra_module_url and is small enough to execute *before* that swap, in
+// which case a define() here lands in the native registry and the wrapper
+// never sees it — the dashboard then reports "Custom element doesn't exist".
+// The <home-assistant> root element is always defined after the wrapper is
+// installed, so wait for it before defining ours.
+if (customElements.get("home-assistant")) {
+  defineCard();
+} else {
+  customElements.whenDefined("home-assistant").then(defineCard);
 }
